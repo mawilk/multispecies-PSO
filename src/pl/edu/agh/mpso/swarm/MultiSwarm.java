@@ -3,6 +3,7 @@ package pl.edu.agh.mpso.swarm;
 import java.util.Arrays;
 
 import net.sourceforge.jswarm_pso.FitnessFunction;
+import net.sourceforge.jswarm_pso.Neighborhood;
 import net.sourceforge.jswarm_pso.Particle;
 import net.sourceforge.jswarm_pso.ParticleUpdate;
 import net.sourceforge.jswarm_pso.Swarm;
@@ -150,15 +151,28 @@ public class MultiSwarm extends Swarm {
 	@Override
 	public void evolve() {
 		// Initialize (if not already done)
-		if (particles == null)
+		if (particles == null){
 			init();
-
-		evaluate(); // Evaluate particles
+		}
+		
+		
+		//jezeli sasiedztwo jest euklidesowe, to moze sie zmieniac
+		//, trzeba je inicjalizowac za kazdym razem
+		if(neighborhood instanceof NeighborhoodEuclides){
+			neighborhood.init(this);	
+		}
+		
+		
+		evaluate(); // Evaluate particles		
+		
 		update(); // Update positions and velocities
 
+
 		variablesUpdate.update(this);
-		
+
 		evolveCnt++;
+		
+
 		
 		if(velocityFunction != null && evolveCnt % velocityFunction.getUpdatesInterval() == 0){
 			setAbsMaxVelocity(velocityFunction.getNext());
@@ -172,6 +186,7 @@ public class MultiSwarm extends Swarm {
 			shiftFunction.shift(swarmInfos, orderFunction.getOrder());
 		}
 	}
+	
 	
 	public int [] getSpecies(){
 		int [] result = new int[SpeciesType.values().length];

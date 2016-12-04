@@ -13,6 +13,7 @@ import java.util.List;
 import net.sourceforge.jswarm_pso.FitnessFunction;
 import net.sourceforge.jswarm_pso.Neighborhood;
 import net.sourceforge.jswarm_pso.Neighborhood1D;
+import net.sourceforge.jswarm_pso.Particle;
 import pl.edu.agh.mpso.dao.SimulationResultDAO;
 import pl.edu.agh.mpso.fitness.Rastrigin;
 import pl.edu.agh.mpso.output.SimulationOutput;
@@ -21,6 +22,7 @@ import pl.edu.agh.mpso.output.SimulationOutputOk;
 import pl.edu.agh.mpso.output.SimulationResult;
 import pl.edu.agh.mpso.species.SpeciesType;
 import pl.edu.agh.mpso.swarm.MultiSwarm;
+import pl.edu.agh.mpso.swarm.NeighborhoodEuclides;
 import pl.edu.agh.mpso.swarm.SwarmInformation;
 
 import com.google.gson.Gson;
@@ -93,8 +95,8 @@ public class Scalarm {
 			SimulationResult result = run(speciesArray, fitnessFunction);
 			output = new SimulationOutputOk();
 			((SimulationOutputOk) output).results = result;
-			SimulationResultDAO.getInstance().writeResult(result);
-			SimulationResultDAO.getInstance().close();
+//			SimulationResultDAO.getInstance().writeResult(result);
+//			SimulationResultDAO.getInstance().close();
 		} catch (Throwable e){
 			output = new SimulationOutputError();
 			((SimulationOutputError)output).reason = e.toString() + ": " + e.getMessage();
@@ -107,7 +109,12 @@ public class Scalarm {
 	}
 
 	private static SimulationResult run(int [] particles, FitnessFunction fitnessFunction) {
+		System.out.println("NUMBER_OF_ITERATIONS = " + NUMBER_OF_ITERATIONS);
+		System.out.println("NUMBER_OF_PARTICLES = " + NUMBER_OF_PARTICLES);
+		
 		int cnt = 0;
+		double radius = 20.0;
+		
 		List<SwarmInformation> swarmInformations = new ArrayList<SwarmInformation>();
 		
 		for(int i = 0; i < particles.length; i++){
@@ -121,12 +128,15 @@ public class Scalarm {
 			}
 		}
 		
+		
 		SwarmInformation [] swarmInformationsArray = new SwarmInformation [swarmInformations.size()]; 
 		MultiSwarm multiSwarm = new MultiSwarm(swarmInformations.toArray(swarmInformationsArray), fitnessFunction);
+	
 		
-		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
+//		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
+		Neighborhood neighbourhood = new NeighborhoodEuclides(radius);
+
 		multiSwarm.setNeighborhood(neighbourhood);
-		
 		
 		multiSwarm.setNeighborhoodIncrement(0.9);
 		multiSwarm.setInertia(0.95);
@@ -137,18 +147,19 @@ public class Scalarm {
 		multiSwarm.setMinPosition(-100);
 		
 		List<Double> partial = new ArrayList<Double>(NUMBER_OF_ITERATIONS / 100);
+
+		
+		
 		
 		for(int i = 0; i < NUMBER_OF_ITERATIONS; ++i) {
-			// Evolve swarm
 			multiSwarm.evolve();
 			
 			//display partial results
 			if(NUMBER_OF_ITERATIONS > 100 && (i % (NUMBER_OF_ITERATIONS / 100) == 0)){
 				partial.add(multiSwarm.getBestFitness());
-				System.out.println(multiSwarm.getBestFitness());
 			}
+
 		}
-		
 		//print final results
 		System.out.println(multiSwarm.getBestFitness());
 		
