@@ -25,9 +25,9 @@ public class SpeciesParticleUpdate extends ParticleUpdate{
 		double [] localBest = particle.getBestPosition();
 		double [] neighbourhoodBest = swarm.getNeighborhoodBestPosition(particle);
 		
-		double localIncrement = swarm.getParticleIncrement();
-		double globalIncrement = swarm.getGlobalIncrement();
-		double neighbourhoodInrement = swarm.getNeighborhoodIncrement();
+		double localIncrement = Math.random();
+		double globalIncrement = Math.random();
+		double neighbourhoodInrement = Math.random();
 		
 		double [] weights = type.getWeights();
 		

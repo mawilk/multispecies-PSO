@@ -89,12 +89,8 @@ public class FindBestInertia {
 		
 		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
 		multiSwarm.setNeighborhood(neighbourhood);
-		
-		
-		multiSwarm.setNeighborhoodIncrement(0.9);
+				
 		multiSwarm.setInertia(inertia);
-		multiSwarm.setParticleIncrement(0.9);
-		multiSwarm.setGlobalIncrement(0.9);
 		
 		multiSwarm.setMaxPosition(5.12);
 		multiSwarm.setMinPosition(-5.12);

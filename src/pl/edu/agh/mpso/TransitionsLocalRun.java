@@ -160,9 +160,6 @@ public class TransitionsLocalRun {
 		multiSwarm.setNeighborhood(neighbourhood);
 		
 		multiSwarm.setInertia(0.95);
-		multiSwarm.setNeighborhoodIncrement(0.9);
-		multiSwarm.setParticleIncrement(0.9);
-		multiSwarm.setGlobalIncrement(0.9);
 		
 		multiSwarm.setMaxPosition(20);
 		multiSwarm.setMinPosition(-20);

@@ -146,10 +146,7 @@ public class Paths {
 		Neighborhood neighbourhood = new Neighborhood1D(1, true);
 		multiSwarm.setNeighborhood(neighbourhood);
 		
-		multiSwarm.setNeighborhoodIncrement(0.9);
 		multiSwarm.setInertia(0.95);
-		multiSwarm.setParticleIncrement(0.9);
-		multiSwarm.setGlobalIncrement(0.9);
 		multiSwarm.setVelocityFunction(velocityFunction);
 		
 		multiSwarm.setMaxPosition(SEARCH_SPACE_SIZE);

@@ -87,12 +87,8 @@ public class FindBestMaxVelocity {
 		
 		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
 		multiSwarm.setNeighborhood(neighbourhood);
-		
-		
-		multiSwarm.setNeighborhoodIncrement(0.9);
+				
 		multiSwarm.setInertia(0.95);
-		multiSwarm.setParticleIncrement(0.9);
-		multiSwarm.setGlobalIncrement(0.9);
 		
 		multiSwarm.setMaxPosition(5.12);
 		multiSwarm.setMinPosition(-5.12);

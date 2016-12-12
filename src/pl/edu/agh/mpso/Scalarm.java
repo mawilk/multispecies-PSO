@@ -138,10 +138,7 @@ public class Scalarm {
 
 		multiSwarm.setNeighborhood(neighbourhood);
 		
-		multiSwarm.setNeighborhoodIncrement(0.9);
 		multiSwarm.setInertia(0.95);
-		multiSwarm.setParticleIncrement(0.9);
-		multiSwarm.setGlobalIncrement(0.9);
 		
 		multiSwarm.setMaxPosition(100);
 		multiSwarm.setMinPosition(-100);

@@ -29,9 +29,9 @@ public class MultiSwarm extends Swarm {
 		for(SwarmInformation swarmInfo : swarmInfos)
 			numberOfParticles += swarmInfo.getNumberOfParticles();
 		
-		globalIncrement = DEFAULT_GLOBAL_INCREMENT;
+		globalIncrement = Math.random();
 		inertia = DEFAULT_INERTIA;
-		particleIncrement = DEFAULT_PARTICLE_INCREMENT;
+		particleIncrement = Math.random();
 		numberOfEvaliations = 0;
 		this.numberOfParticles = numberOfParticles;
 		this.sampleParticle = swarmInfos[0].getSampleParticle();
@@ -43,7 +43,7 @@ public class MultiSwarm extends Swarm {
 		variablesUpdate = new VariablesUpdate();
 
 		neighborhood = null;
-		neighborhoodIncrement = 0.0;
+		neighborhoodIncrement = Math.random();
 		particlesList = null;
 		
 		this.swarmInfos = swarmInfos;
