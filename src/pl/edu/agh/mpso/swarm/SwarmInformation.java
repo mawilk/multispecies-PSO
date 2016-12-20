@@ -72,4 +72,15 @@ public class SwarmInformation {
 	public ParticleUpdate getParticleUpdate() {
 		return particleUpdate;
 	}
+	
+	public double[] getBestPosition() {
+		Particle best = particles.get(0);
+		for (Particle particle : particles) {
+			if(particle.getBestFitness() > best.getBestFitness()) {
+				best = particle;
+			}
+		}
+		
+		return best.getBestPosition();
+	}
 }
