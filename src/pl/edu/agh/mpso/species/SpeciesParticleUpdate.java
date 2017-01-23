@@ -42,22 +42,24 @@ public class SpeciesParticleUpdate extends ParticleUpdate {
 			// Update position
 			position[i] = position[i] + velocity[i];
 
-			double inspireVector = 0;
+			double inspireDirection = 0;
 			int[] speciesToInspire = type.getSpeciesToInspire();
 
 			if (speciesToInspire.length == 0) {
-				inspireVector = globalIncrement * weights[0] * (globalBest[i] - position[i]);
+				inspireDirection = globalIncrement * weights[0] * (globalBest[i] - position[i]);
 			} else {
 				for (int toInspire : speciesToInspire) {
 					for (SwarmInformation swarmInformation : infos) {
 						if (swarmInformation.getType().ordinal() == toInspire) {
-							inspireVector += globalIncrement * weights[0] * (swarmInformation.getBestPosition()[i] - position[i]);
+							inspireDirection += globalIncrement * weights[0] * (swarmInformation.getBestPosition()[i] - position[i]);
 						}
 					}
 				}
+				
+				inspireDirection /= speciesToInspire.length;
 			}
 
-			velocity[i] = swarm.getInertia() * velocity[i] + inspireVector
+			velocity[i] = swarm.getInertia() * velocity[i] + inspireDirection
 					+ localIncrement * weights[1] * (localBest[i] - position[i])
 					+ neighbourhoodInrement * weights[2] * (neighbourhoodBest[i] - position[i]);
 		}

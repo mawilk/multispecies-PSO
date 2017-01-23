@@ -7,7 +7,9 @@ import static pl.edu.agh.mpso.Simulation.NUMBER_OF_PARTICLES;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import net.sourceforge.jswarm_pso.FitnessFunction;
@@ -31,7 +33,7 @@ import com.google.gson.Gson;
  * 
  * @author iwanb
  * command line args:
- * - function name - must be the same as class from pl.edu.agh.miss.fitness
+ * - function name - must be the same as class from pl.edu.agh.mpso.fitness
  * - number of dimensions
  * - number of iterations
  * - proportional share of 1st species
@@ -48,11 +50,11 @@ public class Scalarm {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, IOException {
-		//get optimization problem
+		// get optimization problem
 		FitnessFunction fitnessFunction = null;
 		Class<? extends FitnessFunction> fitnessFunctionClass = Rastrigin.class;
 		className = args.length >= 1 ? args[0] : "Rastrigin";
-		final String packageName = "pl.edu.agh.miss.fitness";
+		final String packageName = "pl.edu.agh.mpso.fitness";
 		try {
 			fitnessFunctionClass = (Class<FitnessFunction>) Class.forName(packageName + "." + className);
 		} catch (ClassNotFoundException e) {
@@ -60,107 +62,112 @@ public class Scalarm {
 		} finally {
 			fitnessFunction = fitnessFunctionClass.newInstance();
 		}
-		
-		//get number of dimensions
-		if(args.length >= 2){
+
+		// get number of dimensions
+		if (args.length >= 2) {
 			NUMBER_OF_DIMENSIONS = Integer.valueOf(args[1]);
-			if(NUMBER_OF_DIMENSIONS <= 0) NUMBER_OF_DIMENSIONS = 10;
+			if (NUMBER_OF_DIMENSIONS <= 0)
+				NUMBER_OF_DIMENSIONS = 10;
 		}
-		//get number of iterations
-		if(args.length >= 3){
+		// get number of iterations
+		if (args.length >= 3) {
 			NUMBER_OF_ITERATIONS = Integer.valueOf(args[2]);
-			if(NUMBER_OF_ITERATIONS <= 0) NUMBER_OF_ITERATIONS = 1000;
+			if (NUMBER_OF_ITERATIONS <= 0)
+				NUMBER_OF_ITERATIONS = 1000;
 		}
-		
-		//create array of species share
+
+		// create array of species share
 		int numberOfSpecies = SpeciesType.values().length;
-		int [] speciesArray = new int[numberOfSpecies];
+		int[] speciesArray = new int[numberOfSpecies];
 		int argsSum = 0;
-		
-		for(int i = 3; i < Math.min(numberOfSpecies + 3, args.length); i++){
+
+		for (int i = 3; i < Math.min(numberOfSpecies + 3, args.length); i++) {
 			argsSum += Integer.valueOf(args[i]);
 		}
 		
 		if(argsSum == 0){
 			speciesArray[0] = NUMBER_OF_PARTICLES;
 		} else {
-			for(int i = 0; i < Math.min(numberOfSpecies, args.length - 3); i++){
-				float speciesShare = (float) Integer.valueOf(args[i + 3]) / (float) argsSum;
-				speciesArray[i] = (int) (speciesShare * NUMBER_OF_PARTICLES);
+			for(int i = 0; i < Math.min(numberOfSpecies, args.length - 4); i++){
+				speciesArray[i] = Integer.valueOf(args[i + 4]);
 			}
 		}
-		
+
 		SimulationOutput output = null;
-		try{
+		try {
 			SimulationResult result = run(speciesArray, fitnessFunction);
 			output = new SimulationOutputOk();
 			((SimulationOutputOk) output).results = result;
-//			SimulationResultDAO.getInstance().writeResult(result);
-//			SimulationResultDAO.getInstance().close();
-		} catch (Throwable e){
+			// SimulationResultDAO.getInstance().writeResult(result);
+			// SimulationResultDAO.getInstance().close();
+		} catch (Throwable e) {
 			output = new SimulationOutputError();
-			((SimulationOutputError)output).reason = e.toString() + ": " + e.getMessage();
+			((SimulationOutputError) output).reason = e.toString() + ": " + e.getMessage();
 		} finally {
-			Writer writer = new FileWriter("output.json");
+			String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
+			String fileName = "results/" + args[0] + "_" + args[1] + "_" + timeStamp + ".json";
+			
+			Writer writer = new FileWriter(fileName);
 			Gson gson = new Gson();
 			gson.toJson(output, writer);
 			writer.close();
 		}
 	}
 
-	private static SimulationResult run(int [] particles, FitnessFunction fitnessFunction) {
-		System.out.println("NUMBER_OF_ITERATIONS = " + NUMBER_OF_ITERATIONS);
-		System.out.println("NUMBER_OF_PARTICLES = " + NUMBER_OF_PARTICLES);
-		
+	private static SimulationResult run(int[] particles, FitnessFunction fitnessFunction) {
+		// System.out.println("NUMBER_OF_ITERATIONS = " + NUMBER_OF_ITERATIONS);
+		// System.out.println("NUMBER_OF_PARTICLES = " + NUMBER_OF_PARTICLES);
+
 		int cnt = 0;
-		double radius = 20.0;
-		
+//		double radius = 20.0;
+
 		List<SwarmInformation> swarmInformations = new ArrayList<SwarmInformation>();
-		
-		for(int i = 0; i < particles.length; i++){
-			if(particles[i] != 0){
+
+		for (int i = 0; i < particles.length; i++) {
+			if (particles[i] != 0) {
 				cnt += particles[i];
-				
+
 				SpeciesType type = SpeciesType.values()[i];
 				SwarmInformation swarmInformation = new SwarmInformation(particles[i], type);
-				
+
 				swarmInformations.add(swarmInformation);
 			}
 		}
-		
-		
-		SwarmInformation [] swarmInformationsArray = new SwarmInformation [swarmInformations.size()]; 
+
+		SwarmInformation[] swarmInformationsArray = new SwarmInformation[swarmInformations.size()];
 		MultiSwarm multiSwarm = new MultiSwarm(swarmInformations.toArray(swarmInformationsArray), fitnessFunction);
-	
-		
-//		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
-		Neighborhood neighbourhood = new NeighborhoodEuclides(radius);
+
+		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
+		// Neighborhood neighbourhood = new NeighborhoodEuclides(radius);
 
 		multiSwarm.setNeighborhood(neighbourhood);
-		
+
 		multiSwarm.setInertia(0.95);
-		
+
 		multiSwarm.setMaxPosition(100);
 		multiSwarm.setMinPosition(-100);
-		
+
 		List<Double> partial = new ArrayList<Double>(NUMBER_OF_ITERATIONS / 100);
 
-		
-		
-		
-		for(int i = 0; i < NUMBER_OF_ITERATIONS; ++i) {
+		for (int i = 0; i < NUMBER_OF_ITERATIONS; ++i) {
 			multiSwarm.evolve();
 			
-			//display partial results
-			if(NUMBER_OF_ITERATIONS > 100 && (i % (NUMBER_OF_ITERATIONS / 100) == 0)){
+			if(multiSwarm.getBestFitness() == 0.0) {
+				System.out.println(i);
+				partial.add(multiSwarm.getBestFitness());
+				break;
+			}
+
+			// display partial results
+			if (NUMBER_OF_ITERATIONS > 100 && (i % (NUMBER_OF_ITERATIONS / 100) == 0)) {
 				partial.add(multiSwarm.getBestFitness());
 			}
 
 		}
-		//print final results
+		// print final results
 		System.out.println(multiSwarm.getBestFitness());
-		
-		//create output.json
+
+		// create output.json
 		SimulationResult output = new SimulationResult();
 		output.fitnessFunction = className;
 		output.iterations = NUMBER_OF_ITERATIONS;
@@ -168,16 +175,16 @@ public class Scalarm {
 		output.partial = partial;
 		output.bestFitness = multiSwarm.getBestFitness();
 		output.totalParticles = NUMBER_OF_PARTICLES;
-		
-		output.species1 = particles[0];
-		output.species2 = particles[1];
-		output.species3 = particles[2];
-		output.species4 = particles[3];
-		output.species5 = particles[4];
-		output.species6 = particles[5];
-		output.species7 = particles[6];
-		output.species8 = particles[7];
-		
+
+		// output.species1 = particles[0];
+		// output.species2 = particles[1];
+		// output.species3 = particles[2];
+		// output.species4 = particles[3];
+		// output.species5 = particles[4];
+		// output.species6 = particles[5];
+		// output.species7 = particles[6];
+		// output.species8 = particles[7];
+
 		return output;
 	}
 }

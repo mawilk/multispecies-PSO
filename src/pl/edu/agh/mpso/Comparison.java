@@ -17,7 +17,10 @@ import pl.edu.agh.mpso.chart.ChartCombiner;
 import pl.edu.agh.mpso.chart.Point;
 import pl.edu.agh.mpso.chart.ScatterChart;
 import pl.edu.agh.mpso.chart.SpeciesPieChart;
+import pl.edu.agh.mpso.fitness.Ackley;
+import pl.edu.agh.mpso.fitness.Griewank;
 import pl.edu.agh.mpso.fitness.Rastrigin;
+import pl.edu.agh.mpso.fitness.Rosenbrock;
 import pl.edu.agh.mpso.fitness.Schwefel;
 import pl.edu.agh.mpso.species.SpeciesType;
 import pl.edu.agh.mpso.swarm.MultiSwarm;
@@ -33,14 +36,23 @@ public class Comparison {
 	public static void main(String[] args) {
 		for (int i = 0; i < EXECUTIONS; i++) {
 			System.out.println("Execution " + (i + 1) + " of " + EXECUTIONS);
-			run("Standard", new int[] { 24 });
-			run("Swarm 3", new int[] { 2, 8, 0, 8, 0, 0, 0, 18 });
-			run("Swarm 4", new int[] { 2, 8, 0, 10, 0, 0, 0, 15 });
-			run("Swarm 7", new int[] { 0, 12, 10, 12, 2, 2, 2, 5 });
+			run("standard", new int[] { 130 });
+			// run("c1_1", new int[] { 0, 60, 20, 30, 20 });
+			// run("c1_2", new int[] { 0, 30, 60, 20, 20 });
+			run("c1_3", new int[] { 0, 20, 30, 60, 20 });
+			// run("c1_4", new int[] { 0, 20, 60, 30, 20 });
+			// run("c1_5", new int[] { 0, 20, 20, 30, 60 });
+			// run("c1_6", new int[] { 0, 30, 20, 20, 60 });
+			run("c1_7", new int[] { 0, 60, 20, 20, 30 });
+			run("c1_8", new int[] { 0, 20, 20, 60, 30 });
+			// run("c1_9", new int[] { 0, 30, 20, 60, 20 });
+			// run("c1_10", new int[] { 0, 20, 60, 20, 30 });
+			run("c1_11", new int[] { 0, 60, 30, 20, 20 });
+			// run("c1_12", new int[] { 0, 20, 30, 20, 60 });
 		}
 
 		Chart chart = new ScatterChart()
-				.setTitle("PSO Schwefel optimizing, " + NUMBER_OF_DIMENSIONS + " dimensions, " + NUMBER_OF_ITERATIONS
+				.setTitle("PSO Griewank optimizing, " + NUMBER_OF_DIMENSIONS + " dimensions, " + NUMBER_OF_ITERATIONS
 						+ " iterations")
 				.setXAxisTitle("Iterations").setYAxisTitle("Fitness").addSubTitle("" + EXECUTIONS + " executions");
 
@@ -106,7 +118,18 @@ public class Comparison {
 		}
 
 		SwarmInformation[] swarmInformationsArray = new SwarmInformation[swarmInformations.size()];
-		MultiSwarm multiSwarm = new MultiSwarm(swarmInformations.toArray(swarmInformationsArray), new Schwefel());
+		NUMBER_OF_DIMENSIONS = 500;
+		MultiSwarm multiSwarm = new MultiSwarm(swarmInformations.toArray(swarmInformationsArray), new Griewank());
+
+		// NUMBER_OF_DIMENSIONS = 25;
+		// MultiSwarm multiSwarm = new
+		// MultiSwarm(swarmInformations.toArray(swarmInformationsArray), new
+		// Rosenbrock());
+
+		// NUMBER_OF_DIMENSIONS = 50;
+		// MultiSwarm multiSwarm = new
+		// MultiSwarm(swarmInformations.toArray(swarmInformationsArray), new
+		// Ackley());
 
 		Neighborhood neighbourhood = new Neighborhood1D(cnt / 5, true);
 		multiSwarm.setNeighborhood(neighbourhood);
@@ -119,7 +142,7 @@ public class Comparison {
 		for (int i = 0; i < NUMBER_OF_ITERATIONS; ++i) {
 			// Evolve swarm
 			multiSwarm.evolve();
-			if (i % 1000 == 0 && i > NUMBER_OF_SKIPPED_ITERATIONS) {
+			if (i % 10 == 0 && i > 10) {
 				if (!results.containsKey(name))
 					results.put(name, new HashMap<Integer, List<Double>>());
 				if (!results.get(name).containsKey(i))
