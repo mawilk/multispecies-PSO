@@ -1,0 +1,5 @@
+standard 1
+STANDARD 20
+c1 2
+C1_A 10
+C1_B 10

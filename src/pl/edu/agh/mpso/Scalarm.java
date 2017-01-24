@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.jswarm_pso.FitnessFunction;
 import net.sourceforge.jswarm_pso.Neighborhood;
@@ -26,6 +27,7 @@ import pl.edu.agh.mpso.species.SpeciesType;
 import pl.edu.agh.mpso.swarm.MultiSwarm;
 import pl.edu.agh.mpso.swarm.NeighborhoodEuclides;
 import pl.edu.agh.mpso.swarm.SwarmInformation;
+import pl.edu.agh.mpso.utils.ConfigReader;
 
 import com.google.gson.Gson;
 
@@ -36,14 +38,7 @@ import com.google.gson.Gson;
  * - function name - must be the same as class from pl.edu.agh.mpso.fitness
  * - number of dimensions
  * - number of iterations
- * - proportional share of 1st species
- * - proportional share of 2nd species
- * - proportional share of 3rd species
- * - proportional share of 4th species
- * - proportional share of 5th species
- * - proportional share of 6th species
- * - proportional share of 7th species
- * - proportional share of 8th species
+ * - config filename
  */
 public class Scalarm {
 	private static String className;
@@ -75,27 +70,22 @@ public class Scalarm {
 			if (NUMBER_OF_ITERATIONS <= 0)
 				NUMBER_OF_ITERATIONS = 1000;
 		}
-
+		
+		List<SwarmInformation> configuration;
+		String filename;
 		// create array of species share
-		int numberOfSpecies = SpeciesType.values().length;
-		int[] speciesArray = new int[numberOfSpecies];
-		int argsSum = 0;
-
-		for (int i = 3; i < Math.min(numberOfSpecies + 3, args.length); i++) {
-			argsSum += Integer.valueOf(args[i]);
+		if (args.length >= 4) {
+			filename = args[3];
+		} else {
+			filename = "swarm_config.txt";
 		}
 		
-		if(argsSum == 0){
-			speciesArray[0] = NUMBER_OF_PARTICLES;
-		} else {
-			for(int i = 0; i < Math.min(numberOfSpecies, args.length - 4); i++){
-				speciesArray[i] = Integer.valueOf(args[i + 4]);
-			}
-		}
+		configuration = ConfigReader.getSwarm(filename);
+		
 
 		SimulationOutput output = null;
 		try {
-			SimulationResult result = run(speciesArray, fitnessFunction);
+			SimulationResult result = run(configuration, fitnessFunction);
 			output = new SimulationOutputOk();
 			((SimulationOutputOk) output).results = result;
 			// SimulationResultDAO.getInstance().writeResult(result);
@@ -114,25 +104,12 @@ public class Scalarm {
 		}
 	}
 
-	private static SimulationResult run(int[] particles, FitnessFunction fitnessFunction) {
+	private static SimulationResult run(List<SwarmInformation> swarmInformations, FitnessFunction fitnessFunction) {
 		// System.out.println("NUMBER_OF_ITERATIONS = " + NUMBER_OF_ITERATIONS);
 		// System.out.println("NUMBER_OF_PARTICLES = " + NUMBER_OF_PARTICLES);
 
 		int cnt = 0;
 //		double radius = 20.0;
-
-		List<SwarmInformation> swarmInformations = new ArrayList<SwarmInformation>();
-
-		for (int i = 0; i < particles.length; i++) {
-			if (particles[i] != 0) {
-				cnt += particles[i];
-
-				SpeciesType type = SpeciesType.values()[i];
-				SwarmInformation swarmInformation = new SwarmInformation(particles[i], type);
-
-				swarmInformations.add(swarmInformation);
-			}
-		}
 
 		SwarmInformation[] swarmInformationsArray = new SwarmInformation[swarmInformations.size()];
 		MultiSwarm multiSwarm = new MultiSwarm(swarmInformations.toArray(swarmInformationsArray), fitnessFunction);

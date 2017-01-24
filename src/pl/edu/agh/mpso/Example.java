@@ -19,7 +19,7 @@ public class Example {
 		
 		SwarmInformation [] swarmInfos = new SwarmInformation[3];
 		swarmInfos[0] = new SwarmInformation(10, SpeciesType.ALL);
-		swarmInfos[1] = new SwarmInformation(5, SpeciesType.GLOBAL_AND_LOCAL);
+//		swarmInfos[1] = new SwarmInformation(5, SpeciesType.GLOBAL_AND_LOCAL);
 		swarmInfos[2] = new SwarmInformation(5, SpeciesType.RANDOM);
 		
 		MultiSwarm swarm = new MultiSwarm(swarmInfos, fitnessFunction);

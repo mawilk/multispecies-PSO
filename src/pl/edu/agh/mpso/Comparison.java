@@ -4,6 +4,11 @@ import static pl.edu.agh.mpso.Simulation.NUMBER_OF_DIMENSIONS;
 import static pl.edu.agh.mpso.Simulation.NUMBER_OF_ITERATIONS;
 import static pl.edu.agh.mpso.Simulation.NUMBER_OF_SKIPPED_ITERATIONS;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +30,7 @@ import pl.edu.agh.mpso.fitness.Schwefel;
 import pl.edu.agh.mpso.species.SpeciesType;
 import pl.edu.agh.mpso.swarm.MultiSwarm;
 import pl.edu.agh.mpso.swarm.SwarmInformation;
+import pl.edu.agh.mpso.utils.ConfigReader;
 
 @SuppressWarnings("rawtypes")
 public class Comparison {
@@ -34,21 +40,21 @@ public class Comparison {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
+		String filename;
+
+		if(args.length == 2) {
+			filename = args[1];
+		} else {
+			filename = "swarms_config.txt";
+		}
+		
+		Map<String, List<SwarmInformation>> configuration = ConfigReader.getSwarms(filename);
 		for (int i = 0; i < EXECUTIONS; i++) {
 			System.out.println("Execution " + (i + 1) + " of " + EXECUTIONS);
-			run("standard", new int[] { 130 });
-			// run("c1_1", new int[] { 0, 60, 20, 30, 20 });
-			// run("c1_2", new int[] { 0, 30, 60, 20, 20 });
-			run("c1_3", new int[] { 0, 20, 30, 60, 20 });
-			// run("c1_4", new int[] { 0, 20, 60, 30, 20 });
-			// run("c1_5", new int[] { 0, 20, 20, 30, 60 });
-			// run("c1_6", new int[] { 0, 30, 20, 20, 60 });
-			run("c1_7", new int[] { 0, 60, 20, 20, 30 });
-			run("c1_8", new int[] { 0, 20, 20, 60, 30 });
-			// run("c1_9", new int[] { 0, 30, 20, 60, 20 });
-			// run("c1_10", new int[] { 0, 20, 60, 20, 30 });
-			run("c1_11", new int[] { 0, 60, 30, 20, 20 });
-			// run("c1_12", new int[] { 0, 20, 30, 20, 60 });
+
+			for (String name : configuration.keySet()) {
+				run(name, configuration.get(name));
+			}
 		}
 
 		Chart chart = new ScatterChart()
@@ -95,27 +101,9 @@ public class Comparison {
 		return Math.sqrt(variance);
 	}
 
-	private static void run(String name, int[] particles) {
-		// create pie chart
-		if (!pieCharts.containsKey(name)) {
-			Chart<Integer> pieChart = new SpeciesPieChart().addSpeciesData(name, particles);
-			pieCharts.put(name, pieChart);
-		}
-
+	private static void run(String name, List<SwarmInformation> swarmInformations) {
 		// create particles
-		int cnt = 0;
-		List<SwarmInformation> swarmInformations = new ArrayList<SwarmInformation>();
-
-		for (int i = 0; i < particles.length; i++) {
-			if (particles[i] != 0) {
-				cnt += particles[i];
-
-				SpeciesType type = SpeciesType.values()[i];
-				SwarmInformation swarmInformation = new SwarmInformation(particles[i], type);
-
-				swarmInformations.add(swarmInformation);
-			}
-		}
+		int cnt = swarmInformations.size();
 
 		SwarmInformation[] swarmInformationsArray = new SwarmInformation[swarmInformations.size()];
 		NUMBER_OF_DIMENSIONS = 500;
