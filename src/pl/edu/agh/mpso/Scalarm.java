@@ -42,6 +42,7 @@ import com.google.gson.Gson;
  */
 public class Scalarm {
 	private static String className;
+	private static final int EXECUTIONS = 5;
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, IOException {
@@ -84,29 +85,34 @@ public class Scalarm {
 		
 
 		SimulationOutput output = null;
-		try {
-			SimulationResult result = run(configuration, fitnessFunction);
-			output = new SimulationOutputOk();
-			((SimulationOutputOk) output).results = result;
-			// SimulationResultDAO.getInstance().writeResult(result);
-			// SimulationResultDAO.getInstance().close();
-		} catch (Throwable e) {
-			output = new SimulationOutputError();
-			((SimulationOutputError) output).reason = e.toString() + ": " + e.getMessage();
-		} finally {
-			String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
-			String fileName = "results/" + args[0] + "_" + args[1] + "_" + timeStamp + ".json";
-			
-			Writer writer = new FileWriter(fileName);
-			Gson gson = new Gson();
-			gson.toJson(output, writer);
-			writer.close();
+		SimulationResult result = null;
+		
+		String fileName = "results/" + args[0] + "_" + args[1] + "_" + filename + ".json";
+		Writer writer = new FileWriter(fileName);
+		
+		for(int i = 0; i < EXECUTIONS; i++){
+			try {
+				result = run(configuration, fitnessFunction);
+				output = new SimulationOutputOk();
+				((SimulationOutputOk) output).results = result;
+				// SimulationResultDAO.getInstance().writeResult(result);
+				// SimulationResultDAO.getInstance().close();
+			} catch (Throwable e) {
+				output = new SimulationOutputError();
+				((SimulationOutputError) output).reason = e.toString() + ": " + e.getMessage();
+			} finally {
+				//String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
+				Gson gson = new Gson();
+				gson.toJson(result.partial, writer);
+				writer.append('\n');
+			}
 		}
+		writer.close();
 	}
 
 	private static SimulationResult run(List<SwarmInformation> swarmInformations, FitnessFunction fitnessFunction) {
-		// System.out.println("NUMBER_OF_ITERATIONS = " + NUMBER_OF_ITERATIONS);
-		// System.out.println("NUMBER_OF_PARTICLES = " + NUMBER_OF_PARTICLES);
+		System.out.println("NUMBER_OF_ITERATIONS = " + NUMBER_OF_ITERATIONS);
+		System.out.println("NUMBER_OF_PARTICLES = " + NUMBER_OF_PARTICLES);
 
 		int cnt = 0;
 //		double radius = 20.0;
@@ -143,6 +149,7 @@ public class Scalarm {
 		}
 		// print final results
 		System.out.println(multiSwarm.getBestFitness());
+		System.out.println("Partial size: " + partial.size());
 
 		// create output.json
 		SimulationResult output = new SimulationResult();
