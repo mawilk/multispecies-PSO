@@ -1,5 +1,7 @@
 package pl.edu.agh.mpso.species;
 
+import java.util.Map;
+
 import net.sourceforge.jswarm_pso.Particle;
 import net.sourceforge.jswarm_pso.ParticleUpdate;
 import net.sourceforge.jswarm_pso.Swarm;
@@ -23,7 +25,7 @@ public class SpeciesParticleUpdate extends ParticleUpdate {
 
 		MultiSwarm multiswarm = (MultiSwarm) swarm;
 
-		SwarmInformation[] infos = multiswarm.getSwarmInfos();
+		Map<Integer, SwarmInformation> infos = multiswarm.getSwarmInfosMap();
 
 		double[] position = particle.getPosition();
 		double[] velocity = particle.getVelocity();
@@ -49,10 +51,8 @@ public class SpeciesParticleUpdate extends ParticleUpdate {
 				inspireDirection = globalIncrement * weights[0] * (globalBest[i] - position[i]);
 			} else {
 				for (int toInspire : speciesToInspire) {
-					for (SwarmInformation swarmInformation : infos) {
-						if (swarmInformation.getType().ordinal() == toInspire) {
-							inspireDirection += globalIncrement * weights[0] * (swarmInformation.getBestPosition()[i] - position[i]);
-						}
+					if (infos.containsKey(toInspire)) {
+						inspireDirection += globalIncrement * weights[0] * (infos.get(toInspire).getBestPosition()[i] - position[i]);
 					}
 				}
 				

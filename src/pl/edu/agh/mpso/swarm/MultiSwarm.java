@@ -1,9 +1,10 @@
 package pl.edu.agh.mpso.swarm;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sourceforge.jswarm_pso.FitnessFunction;
-import net.sourceforge.jswarm_pso.Neighborhood;
 import net.sourceforge.jswarm_pso.Particle;
 import net.sourceforge.jswarm_pso.ParticleUpdate;
 import net.sourceforge.jswarm_pso.Swarm;
@@ -17,6 +18,7 @@ import pl.edu.agh.mpso.velocity.VelocityFunction;
 public class MultiSwarm extends Swarm {
 
 	private SwarmInformation swarmInfos[];
+	private Map<Integer, SwarmInformation> swarmInfosMap;
 	private VelocityFunction velocityFunction;
 	private OrderFunction orderFunction;
 	private ShiftFunction shiftFunction;
@@ -46,7 +48,12 @@ public class MultiSwarm extends Swarm {
 		neighborhoodIncrement = Math.random();
 		particlesList = null;
 
+		this.swarmInfosMap = new HashMap<Integer, SwarmInformation>();
 		this.swarmInfos = swarmInfos;
+		
+		for (SwarmInformation swarmInformation : swarmInfos) {
+			swarmInfosMap.put(swarmInformation.getType().ordinal(), swarmInformation);
+		}
 	}
 
 	public void setAbsMaxVelocity(double velocity) {
@@ -200,4 +207,7 @@ public class MultiSwarm extends Swarm {
 		return swarmInfos;
 	}
 
+	public Map<Integer, SwarmInformation> getSwarmInfosMap() {
+		return swarmInfosMap;
+	}
 }
